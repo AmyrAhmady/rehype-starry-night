@@ -21,7 +21,7 @@ function extractMetadata(node) {
 }
 
 export default function rehypeStarryNight(userOptions = {}) {
-	const { aliases = {}, grammars = all, headerExtensions = [ starryNightHeaderLanguageExtension, starryNightHeaderCaptionExtension ] } = userOptions;
+	const { aliases = {}, grammars = all, showLines, showHeader, headerExtensions = [starryNightHeaderLanguageExtension, starryNightHeaderCaptionExtension] } = userOptions;
 	const starryNightPromise = createStarryNight(grammars);
 
 	return async function (tree) {
@@ -70,6 +70,8 @@ export default function rehypeStarryNight(userOptions = {}) {
 				extensions: headerExtensions
 			};
 
+			const headerElements = showHeader ? starryNightHeader(headerOptions) : {}
+
 			parent.children.splice(index, 1, {
 				type: "element",
 				tagName: "div",
@@ -77,7 +79,7 @@ export default function rehypeStarryNight(userOptions = {}) {
 					className: ["highlight", "highlight-" + languageId]
 				},
 				children: [
-					starryNightHeader(headerOptions),
+					headerElements,
 					{
 						type: "element",
 						tagName: "pre",
@@ -88,8 +90,8 @@ export default function rehypeStarryNight(userOptions = {}) {
 							{
 								type: "element",
 								tagName: "code",
-								properties: { tabindex: 0 },
-								children: starryNightGutter(children, code.match(search).length, metadata)
+								properties: { tabIndex: 0 },
+								children: starryNightGutter(children, code.match(search).length, metadata, showLines)
 							}
 						]
 					}
