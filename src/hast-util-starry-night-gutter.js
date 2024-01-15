@@ -1,11 +1,11 @@
 export const search = /\r?\n|\r/g
 
-export default function starryNightGutter(children, lines, metadata) {
+export default function starryNightGutter(children, lines, metadata, showLines) {
 	const linePadding = lines > 9 ? `${lines}`.length : 1
-	return createLines(children, lines > 1 ? createLine : createOneLine, linePadding, metadata)
+	return createLines(children, lines > 1 ? createLine : createOneLine, linePadding, metadata, showLines)
 }
 
-function createLines(children, createLine, linePadding, { highlight = [], prompt = [] }) {
+function createLines(children, createLine, linePadding, { highlight = [], prompt = [] }, showLines) {
 	const replacement = []
 	let index = -1
 	let start = 0
@@ -39,7 +39,7 @@ function createLines(children, createLine, linePadding, { highlight = [], prompt
 
 				// Add a line, and the eol.
 				lineNumber += 1
-				replacement.push(createLine(line, highlight.includes(lineNumber), prompt.includes(lineNumber), lineNumber, linePadding), {
+				replacement.push(createLine(line, highlight.includes(lineNumber), prompt.includes(lineNumber), lineNumber, linePadding, showLines), {
 					type: "text",
 					value: match[0]
 				})
@@ -65,15 +65,17 @@ function createLines(children, createLine, linePadding, { highlight = [], prompt
 
 	if (line.length > 0) {
 		lineNumber += 1
-		replacement.push(createLine(line, highlight.includes(lineNumber), prompt.includes(lineNumber), lineNumber, linePadding))
+		replacement.push(createLine(line, highlight.includes(lineNumber), prompt.includes(lineNumber), lineNumber, linePadding, showLines))
 	}
 
 	return replacement
 }
 
-function createLine(children, dataHighlighted, dataPrompt, lineNumber, linePadding) {
-	const elements = [
-		{
+function createLine(children, dataHighlighted, dataPrompt, lineNumber, linePadding, showLines) {
+	const elements = []
+
+	if (showLines) {
+		elements.push({
 			type: "element",
 			tagName: "span",
 			properties: {
@@ -86,8 +88,8 @@ function createLine(children, dataHighlighted, dataPrompt, lineNumber, linePaddi
 					value: `${lineNumber}`.padStart(linePadding)
 				}
 			]
-		}
-	]
+		})
+	}
 
 	if (dataPrompt) {
 		elements.push({
